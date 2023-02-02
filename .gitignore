@@ -1,0 +1,5 @@
+# for VS Code & .NET
+.vscode/
+bin/
+obj/
+output/
