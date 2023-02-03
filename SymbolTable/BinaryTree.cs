@@ -47,14 +47,15 @@ abstract class BinaryTree<TKey, TValue> : Tree, ISymbolTable<TKey, TValue>
             }
         }
 
-        public override ICollection<BTNode> Children
+        private static readonly BTNode[] emptyArray = new BTNode[0];
+        public override BTNode[] Children
         {
             get
             {
-                List<BTNode> ret = new(2);
-                if (Left != null) ret.Add(Left);
-                if (Right != null) ret.Add(Right);
-                return ret;
+                if (Left != null && Right != null) return new BTNode[2] { Left, Right };
+                else if (Left != null) return new BTNode[1] { Left };
+                else if (Right != null) return new BTNode[1] { Right };
+                else return emptyArray;
             }
         }
 
@@ -76,6 +77,7 @@ abstract class BinaryTree<TKey, TValue> : Tree, ISymbolTable<TKey, TValue>
     }
 
     public int Count { get; protected set; }
+    public override int TryGetCount() => Count;
 
     public bool IsReadOnly => false;
 

@@ -7,9 +7,15 @@ abstract class Node
     public abstract IEnumerable<Node> Children { get; }
 }
 
-abstract class Tree : IEnumerable<Node>
+abstract partial class Tree : IEnumerable<Node>
 {
+    /// <summary>
+    /// 这是“根节点的父节点”，不保存数据，只起辅助作用
+    /// </summary>
     protected Node RootParent { get; init; }
+
+    public virtual int TryGetCount() => 0;
+    public virtual int TryGetMaxHeight() => 0;
 
     protected virtual void Print(StringBuilder dest, Node node, string sep, int depth = 0)
     {
@@ -37,46 +43,8 @@ abstract class Tree : IEnumerable<Node>
 
     IEnumerator<Node> IEnumerable<Node>.GetEnumerator()
     {
-        return new TreeNodeEnumerator(RootParent);
+        return new PreOrderEnumerator(this);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Node>)this).GetEnumerator();
-
-    public struct TreeNodeEnumerator : IEnumerator<Node>
-    {
-        public Node Current { get; private set; }
-        object IEnumerator.Current => Current;
-
-        private readonly Node RootParent;
-        private readonly Queue<Node> next = new();
-
-        public TreeNodeEnumerator(Node RootParent)
-        {
-            Current = this.RootParent = RootParent;
-            Reset();
-        }
-
-        public void Reset()
-        {
-            Current = RootParent;
-            next.Clear();
-            foreach (var node in RootParent.Children)
-            {
-                next.Enqueue(node);
-            }
-        }
-
-        public bool MoveNext()
-        {
-            if (next.Count == 0) return false;
-            Current = next.Dequeue();
-            foreach (var cld in Current.Children)
-            {
-                next.Enqueue(cld);
-            }
-            return true;
-        }
-
-        public void Dispose() { }
-    }
 }
