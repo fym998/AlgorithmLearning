@@ -1,16 +1,22 @@
-﻿RBT<int, int> tree = new();
-for (int i = 0; i < 10; ++i)
+﻿RBT<char, char> st = new();
+
+foreach (var c in "ACEHLMPRSX")
 {
-    tree.Put(i, i, PutBehavior.DoNothingOnExisting);
+    st[c] = c;
 }
 
-Console.WriteLine(tree.ToString());
+// for (int i = 0; i < 10; ++i)
+// {
+//     st[i] = i;
+// }
+
+Console.WriteLine(st.ToString());
 
 //tree.Remove(1);
 //Console.WriteLine(tree.ToString());
 
-foreach (var node in (IEnumerable<Node>)tree)
+foreach (var node in st)
 {
-    Console.WriteLine(node);
+    Console.WriteLine(node.ToString());
 }
 //Console.WriteLine(string.Join('\n', (IDictionary<int,int>)tree));

@@ -48,27 +48,20 @@ abstract class BinaryTree<TKey, TValue> : Tree, ISymbolTable<TKey, TValue>
         }
 
         private static readonly BTNode[] emptyArray = new BTNode[0];
-        public override BTNode[] Children
+        public override BTNode[] Children => (Left, Right) switch
         {
-            get
-            {
-                if (Left != null && Right != null) return new BTNode[2] { Left, Right };
-                else if (Left != null) return new BTNode[1] { Left };
-                else if (Right != null) return new BTNode[1] { Right };
-                else return emptyArray;
-            }
-        }
+            (not null, not null) => new BTNode[] { Left, Right },
+            (not null, null    ) => new BTNode[] { Left },
+            (null,     not null) => new BTNode[] { Right },
+            (null,     null    ) => emptyArray
+        };
 
-        public override string ToString()
-        {
-            return $"{R}[{Key},{Value}]";
-        }
+        public override string ToString() => $"{R}[{Key},{Value}]";
     }
 
-    public BinaryTree()
-    {
-        RootParent = new(default, default);
-    }
+    protected BinaryTree() : base(new BTNode(default, default)) { }
+
+    protected BinaryTree(BTNode rootParent) : base(rootParent) { }
 
     protected new BTNode RootParent
     {
@@ -77,7 +70,11 @@ abstract class BinaryTree<TKey, TValue> : Tree, ISymbolTable<TKey, TValue>
     }
 
     public int Count { get; protected set; }
-    public override int TryGetCount() => Count;
+    public override bool TryGetCount(out int count)
+    {
+        count = Count;
+        return true;
+    }
 
     public bool IsReadOnly => false;
 
@@ -109,7 +106,7 @@ abstract class BinaryTree<TKey, TValue> : Tree, ISymbolTable<TKey, TValue>
         RootParent.Left = null;
     }
 
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
     {
         return ((Tree)this).Select(node =>
         {

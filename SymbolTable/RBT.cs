@@ -12,25 +12,19 @@ class RBT<TKey, TValue> : BST<TKey, TValue> where TKey : IComparable<TKey>
 
         public NodeColor Color { get; set; }
 
-        public new RBTNode Parent => (RBTNode)base.Parent;
-        public new RBTNode? Left { get => (RBTNode)base.Left; set => base.Left = value; }
-        public new RBTNode? Right { get => (RBTNode)base.Right; set => base.Right = value; }
+        public new RBTNode? Left { get => (RBTNode?)base.Left; set => base.Left = value; }
+        public new RBTNode? Right { get => (RBTNode?)base.Right; set => base.Right = value; }
 
-        public override string ToString()
-        {
-            return $"({R},{Color})[{Key},{Value}]";
-        }
+        public override string ToString() => $"({R},{Color})[{Key},{Value}]";
     }
 
-    public RBT()
+    public override bool TryGetMaxHeight(out int maxHeight)
     {
-        RootParent = new RBTNode(default, default, NodeColor.Black);
+        maxHeight = 2 * BitOperations.Log2((uint)Count + 1);
+        return true;
     }
-
-    public override int TryGetMaxHeight() => 2 * BitOperations.Log2((uint)Count + 1);
 
     enum Rotation { Left, Right }
-
     static RBTNode Rotate(RBTNode x, Rotation o)
     {
         RBTNode? c;
@@ -95,29 +89,28 @@ class RBT<TKey, TValue> : BST<TKey, TValue> where TKey : IComparable<TKey>
 
         Count++;
 
-        //从新增节点开始，不断向上移动，调整树的结构
+        //从新增节点的父节点开始，不断向上移动，调整树的结构
         RBTNode cur = newNode;
         do
         {
+            cur = (RBTNode)cur.Parent;
             //  cur  -->  R  --> cur
             // B   R    cur     R
             //         B      B
-            if (RBT<TKey, TValue>.IsRed(cur.Right) && !RBT<TKey, TValue>.IsRed(cur.Left))
-                cur = RBT<TKey, TValue>.Rotate(cur, Rotation.Left);
+            if (IsRed(cur.Right) && !IsRed(cur.Left))
+                cur = Rotate(cur, Rotation.Left);
 
             //   cur -->  R    -->  cur(R)
             //  R       R   cur    R     R
             // R
-            if (RBT<TKey, TValue>.IsRed(cur.Left) && RBT<TKey, TValue>.IsRed(cur.Left.Left))
-                cur = RBT<TKey, TValue>.Rotate(cur, Rotation.Right);
+            if (IsRed(cur.Left) && IsRed(cur.Left.Left))
+                cur = Rotate(cur, Rotation.Right);
 
             //   cur -->  cur(R)
             //  R   R    B      B
-            if (RBT<TKey, TValue>.IsRed(cur.Left) && RBT<TKey, TValue>.IsRed(cur.Right))
-                RBT<TKey, TValue>.FlipColors(cur);
-
-            cur = cur.Parent;
-        } while (cur != RootParent);
+            if (IsRed(cur.Left) && IsRed(cur.Right))
+                FlipColors(cur);
+        } while (cur != RootParent.Left);
 
         ((RBTNode)RootParent.Left).Color = NodeColor.Black;
         return true;

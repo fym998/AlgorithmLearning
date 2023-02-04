@@ -12,10 +12,20 @@ abstract partial class Tree : IEnumerable<Node>
     /// <summary>
     /// 这是“根节点的父节点”，不保存数据，只起辅助作用
     /// </summary>
-    protected Node RootParent { get; init; }
+    public Node RootParent { get; init; }
 
-    public virtual int TryGetCount() => 0;
-    public virtual int TryGetMaxHeight() => 0;
+    protected Tree(Node rootParent) => RootParent = rootParent;
+
+    public virtual bool TryGetCount(out int count)
+    {
+        count = 0;
+        return false;
+    }
+    public virtual bool TryGetMaxHeight(out int maxHeight)
+    {
+        maxHeight = 0;
+        return false;
+    }
 
     protected virtual void Print(StringBuilder dest, Node node, string sep, int depth = 0)
     {
@@ -41,10 +51,7 @@ abstract partial class Tree : IEnumerable<Node>
         return ret.Remove(ret.Length - 1, 1).ToString();
     }
 
-    IEnumerator<Node> IEnumerable<Node>.GetEnumerator()
-    {
-        return new PreOrderEnumerator(this);
-    }
+    public IEnumerator<Node> GetEnumerator() => new PreOrderEnumerator(this);
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Node>)this).GetEnumerator();
 }

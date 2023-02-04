@@ -12,8 +12,7 @@ abstract partial class Tree
 
         public PreOrderEnumerator(Tree tree)
         {
-            int h = tree.TryGetMaxHeight();
-            if (h > 0)
+            if (tree.TryGetMaxHeight(out int h))
                 s = new Stack<IEnumerator<Node>>(h + 1);
             else
                 s = new Stack<IEnumerator<Node>>(2);
@@ -37,7 +36,7 @@ abstract partial class Tree
                 return true;
             }
             while (!cur.MoveNext() && s.TryPop(out cur)) ;
-            if (s.Count > 1)
+            if (s.Count > 0)
             {
                 Current = cur.Current;
                 return true;
@@ -58,7 +57,10 @@ abstract partial class Tree
 
         public BreadthFirstEnumerator(Tree tree)
         {
-            next = new((tree.TryGetCount() + 1) / 2);
+            if (tree.TryGetCount(out int count))
+                next = new((count + 1) / 2);
+            else
+                next = new(2);
             RootParent = tree.RootParent;
             Reset();
         }
